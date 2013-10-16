@@ -3,14 +3,16 @@
 A functional, referentially transparent, untyped, interactive language based
 on the lambda calculus.
 
-## Expressions
+## Syntax
 
-Basic lambda calculus. Identifiers may not be "include", "let", "in", or "=",
-and may not contain whitespace or the characters ";\.#()".
+Basic lambda calculus syntax, with lambda represented as a backslash.
+Identifiers may not be `include`, `let`, `in`, or `=`, and may not contain
+whitespace or the characters `\.#();`.
 
 ### Let-expressions
 
-A let-expression is of the form
+Let-expression are syntactic sugar for binding variables. A let-expression
+is of the form
 
     let <name1> = <exp1>;
         <name2> = <exp2>;
@@ -21,8 +23,8 @@ and is equivalent to
 
     \<name1> (\<name2> ... ((\<nameN>. <exp>) <expN>) ... <exp2>) <exp1>
 
-Thus, because variables refer to their innermost scope, variables in the
-definitions refer to latest definition that appears before the expression.
+Thus, because variables in lambda calculus refer to their innermost scope,
+variables are bound to latest definition that appears before the expression.
 For example,
 
     let a = 1; b = a; a = 2 in + a b;
@@ -49,10 +51,10 @@ And import statement of the form
 
     import path.to.file;
 
-will inline the file path/to/file.blc, similar to the C preprocessor.
+will inline the file path/to/file.lc, similar to the C preprocessor.
 Thus, order of imports can matter in some instances.
 
-The standard prelude (Prelude.blc) is automatically imported before every
+The standard prelude (Prelude.lc) is automatically imported before every
 file.
 
 ## Execution
@@ -64,10 +66,4 @@ expression is equivalent to
 
 where `let` is evaluated as above. The resulting expression is applied to
 `stdin`, and should evaluate to `stdout`. `stdin` and `stdout` are both
-represented as lists of bytes (see the prelude) for details.
-
-## Implementation
-
-The core lambda calculus interpreter (specifically, avoiding variable capture)
-was inspired by (Edward Kmett's post "Bound" on FP Complete)
-[https://www.fpcomplete.com/user/edwardk/bound].
+represented as lists of bits.
