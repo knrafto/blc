@@ -31,7 +31,7 @@ instance Show1 Expr
 instance Read1 Expr
 
 instance Applicative Expr where
-    pure  = return
+    pure  = Var
     (<*>) = ap
 
 instance Monad Expr where
