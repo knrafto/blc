@@ -1,9 +1,11 @@
+-- | A human-readable version of untyped lambda calculus.
 module Language.BLC.Parse
-    ( Name
+    ( -- * Types
+      Name
     , Decl(..)
     , Expr(..)
+      -- * Parsing
     , parseExpr
-    , parseFile
     ) where
 
 import           Control.Applicative    hiding (optional)
@@ -14,13 +16,16 @@ import           Text.Parsec.Language   (emptyDef)
 import           Text.Parsec.String
 import qualified Text.Parsec.Token      as P
 
+-- | A variable.
 type Name = String
 
+-- | A declaration or import statement.
 data Decl
     = Decl Name Expr
     | Import [String]
     deriving (Eq, Ord, Show, Read)
 
+-- | An expression.
 data Expr
     = Var Name
     | App Expr [Expr]
@@ -30,13 +35,13 @@ data Expr
     | StrLit String
     deriving (Eq, Ord, Show, Read)
 
-parseExpr :: String -> Either ParseError Expr
-parseExpr = parse (whiteSpace *> expr) ""
+-- | Parse a value from a file name and string, consuming all input.
+parseAll :: Parser a -> String -> String -> Either ParseError a
+parseAll p = parse (P.whiteSpace lexer *> p <* eof)
 
-parseFile :: FilePath -> IO [Decl]
-parseFile fp = do
-    s <- readFile fp
-    either (fail . show) return $ parse (whiteSpace *> decls) fp s
+-- | Parse an expression.
+parseExpr :: String -> Either ParseError Expr
+parseExpr = parseAll expr ""
 
 lexer :: P.GenTokenParser String () Identity
 lexer = P.makeTokenParser emptyDef
@@ -47,12 +52,6 @@ lexer = P.makeTokenParser emptyDef
     }
   where
     nameChar = satisfy $ \c -> not $ isSpace c || c `elem` "\\.#();"
-
-whiteSpace :: Parser ()
-whiteSpace = P.whiteSpace lexer
-
-semi :: Parser String
-semi = P.semi lexer
 
 lexeme :: Parser a -> Parser a
 lexeme = P.lexeme lexer
@@ -71,29 +70,20 @@ expr = App <$> subExpr <*> many subExpr
 
 subExpr :: Parser Expr
 subExpr = lam
-       <|> let_
-       <|> charLit
-       <|> strLit
-       <|> parens
-       <|> Var <$> name
-
-lam :: Parser Expr
-lam = Lam <$ symbol "\\" <*> many1 name <* symbol "." <*> expr
-
-let_ :: Parser Expr
-let_ = Let <$ reserved "let" <*> decls <* reserved "in" <*> expr
-
-charLit :: Parser Expr
-charLit = CharLit <$> P.charLiteral lexer
-
-strLit :: Parser Expr
-strLit = StrLit <$> P.stringLiteral lexer
-
-parens :: Parser Expr
-parens = P.parens lexer expr
+      <|> let_
+      <|> charLit
+      <|> strLit
+      <|> parens
+      <|> Var <$> name
+  where
+    lam     = Lam <$ symbol "\\" <*> many1 name <* symbol "." <*> expr
+    let_    = Let <$ reserved "let" <*> decls <* reserved "in" <*> expr
+    charLit = CharLit <$> P.charLiteral lexer
+    strLit  = StrLit <$> P.stringLiteral lexer
+    parens  = P.parens lexer expr
 
 decls :: Parser [Decl]
-decls = sepEndBy1 decl semi
+decls = sepEndBy1 decl (P.semi lexer)
 
 decl :: Parser Decl
 decl = import_ <|> Decl <$> name <* reserved "=" <*> expr
