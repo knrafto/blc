@@ -2,6 +2,9 @@
 module Language.BLC.Translate
     ( translate
     , construct
+      -- * Encoding
+    , encodeBool
+    , decodeBool
     )  where
 
 import           Bound
@@ -57,6 +60,13 @@ unbits = foldl' (\a b -> 2*a + if b then 1 else 0) 0
 -- | Church-encode a 'Bool'.
 encodeBool :: Bool -> Expr a
 encodeBool b = if b then true else false
+
+-- | Decode a church-encoded 'Bool'.
+decodeBool :: Eq a => Expr a -> Maybe Bool
+decodeBool e = case reduce e of
+    e' | e' == true  -> Just True
+       | e' == false -> Just False
+    _                -> Nothing
 
 -- | Encode a list as a recursive pairing. The empty list if represented by
 -- false.

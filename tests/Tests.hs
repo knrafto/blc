@@ -27,15 +27,6 @@ reducible e = reduce e /= e
 (~=) :: Expr V -> Expr V -> Bool
 (~=) = on (==) reduce
 
-properties :: TestTree
-properties = testGroup "properties"
-    [ testProperty "idempotence" $
-      \e -> guardFinite $ reduce e ~= e
-    , testProperty "beta reduction" $
-      \v e a -> guardFinite $ reducible (App (lam v e) a)
-    , testProperty "eta reduction" $
-      \v e -> v `notElem` e ==> guardFinite $ lam v (App e (Var v)) ~= e
-    ]
 
 (@~=) :: String -> String -> Assertion
 (@~=) s1 s2 = do
@@ -46,6 +37,23 @@ properties = testGroup "properties"
     assertParse s = case parseExpr s of
         Left  _ -> assertFailure ("failed parse: " ++ s) >> undefined
         Right e -> return (translate e)
+
+properties :: TestTree
+properties = testGroup "properties"
+    [ testGroup "reduction"
+        [ testProperty "idempotence" $
+          \e -> guardFinite $ reduce e ~= e
+        , testProperty "beta reduction" $
+          \v e a -> guardFinite $ reducible (App (lam v e) a)
+        , testProperty "eta reduction" $
+          \v e -> v `notElem` e ==>
+            guardFinite $ lam v (App e (Var v)) ~= e
+        ]
+    , testGroup "encoding"
+        [ testProperty "boolean" $
+          \b -> decodeBool (encodeBool b :: Expr V) == Just b
+        ]
+    ]
 
 unitTests :: TestTree
 unitTests = testGroup "tests"
