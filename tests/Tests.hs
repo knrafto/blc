@@ -42,6 +42,11 @@ reducible e = reduce e /= e
         Left  _ -> assertFailure ("failed parse: " ++ s) >> undefined
         Right e -> return (translate e)
 
+parseFail :: String -> Assertion
+parseFail s = case parseExpr s of
+        Left  _ -> return ()
+        Right _ -> assertFailure ("parse did not fail: " ++ s)
+
 properties :: TestTree
 properties = testGroup "properties"
     [ testGroup "reduction"
@@ -88,6 +93,12 @@ unitTests = testGroup "tests"
         , testCase "let" $ do
             "let a = b in a" @~= "b"
             "let x = a; y = x; x = b in x y" @~= "b a"
+        ]
+    , testGroup "parsing"
+        [ testCase "variables" $ do
+            "\\x'c'. x'c'" @~= "\\a. a"
+            "\\x\"s\". x\"s\"" @~= "\\a. a"
+            parseFail "\\\"string\". \"string\""
         ]
     ]
 

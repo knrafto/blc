@@ -6,8 +6,9 @@ on the lambda calculus.
 ## Syntax
 
 Basic lambda calculus syntax, with lambda represented as a backslash.
-Identifiers may not be `include`, `let`, `in`, or `=`, and may not contain
-whitespace or the characters `\.#();`.
+Identifiers may not be `include`, `let`, `in`, or `=`, may not contain
+whitespace or the characters `\.#();`, and additionally may not start with
+any of `'"`.
 
 ### Let-expressions
 

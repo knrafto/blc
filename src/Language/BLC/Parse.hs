@@ -57,12 +57,13 @@ parseExpr = parseAll expr ""
 lexer :: P.GenTokenParser String () Identity
 lexer = P.makeTokenParser emptyDef
     { P.commentLine   = "#"
-    , P.identStart    = nameChar
-    , P.identLetter   = nameChar
+    , P.identStart    = nameStart
+    , P.identLetter   = nameLetter
     , P.reservedNames = ["import", "let", "in", "="]
     }
   where
-    nameChar = satisfy $ \c -> not $ isSpace c || c `elem` "\\.#();"
+    nameStart  = satisfy $ \c -> not $ isSpace c || c `elem` "\\.#();'\""
+    nameLetter = satisfy $ \c -> not $ isSpace c || c `elem` "\\.#();"
 
 lexeme :: Parser a -> Parser a
 lexeme = P.lexeme lexer
