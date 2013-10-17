@@ -7,13 +7,19 @@ module Language.BLC.Translate
     , decodeBool
     , encodeList
     , decodeList
+    , encodeChar
+    , decodeChar
+    , encodeString
+    , decodeString
     )  where
 
 import           Bound
+import           Control.Monad
 import           Data.Bits
 import           Data.Char
 import           Data.List
 import           Data.Maybe
+import           Data.Traversable
 import           Data.Word
 
 import           Language.BLC.Core
@@ -23,6 +29,11 @@ import qualified Language.BLC.Parse as P
 fromRight :: Either a b -> b
 fromRight (Left _)  = error "fromRight: Left"
 fromRight (Right b) = b
+
+-- | Take 'Just' elements until the first 'Nothing'.
+takeJust :: [Maybe a] -> [a]
+takeJust (Just x:xs) = x : takeJust xs
+takeJust _           = []
 
 -- | Translate a syntax tree into an expression. Chars are encoded as
 -- 8-element lists of Church booleans, and strings are encoded as lists of
@@ -91,6 +102,17 @@ decodeList = unfoldr f
 encodeChar :: Char -> Expr a
 encodeChar = encodeList . map encodeBool . bits . fromIntegral . ord
 
+-- | Decode a 'Char'.
+decodeChar :: Eq a => Expr a -> Maybe Char
+decodeChar e = do
+    bs <- traverse decodeBool (decodeList e)
+    guard (length bs == 8)
+    return . chr . fromIntegral $ unbits bs
+
 -- | Encode a 'String' as a list of encoded 'Char's.
 encodeString :: String -> Expr a
 encodeString = encodeList . map encodeChar
+
+-- | Decode a 'String'.
+decodeString :: Eq a => Expr a -> String
+decodeString = takeJust . map decodeChar . decodeList

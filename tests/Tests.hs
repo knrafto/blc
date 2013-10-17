@@ -4,6 +4,7 @@ module Main
 
 import Prelude                hiding (notElem)
 
+import Data.Char
 import Data.Foldable          (notElem)
 import Data.Function
 import Test.QuickCheck
@@ -56,6 +57,12 @@ properties = testGroup "properties"
           \b -> decodeBool (encodeBool b :: Expr V) == Just b
         , testProperty "list" $
           \es -> guardFinite $ decodeList (encodeList es) ~== es
+        , testProperty "char" $
+          \c -> isLatin1 c ==>
+            decodeChar (encodeChar c :: Expr V) == Just c
+        , testProperty "string" $
+          \s -> all isLatin1 s ==>
+            decodeString (encodeString s :: Expr V) == s
         ]
     ]
 
