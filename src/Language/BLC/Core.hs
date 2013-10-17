@@ -46,7 +46,7 @@ lam v b = Lam (abstract1 v b)
 
 -- | Apply a function to a list of arguments.
 app :: Expr a -> [Expr a] -> Expr a
-app l = foldl App l
+app = foldl App
 
 -- | Reduce an expression to beta-eta normal form.
 reduce :: Expr a -> Expr a
@@ -65,9 +65,9 @@ beta f a = case f' of
 
 -- | Apply eta conversion, if possible.
 eta :: Scope () Expr a -> Expr a
-eta s = case unscope s of
-    App a (Var (B ())) -> maybe (Lam s) reduce $ traverse fromVar a
-    _                  -> (Lam s)
+eta s = maybe (Lam s) reduce $ case unscope s of
+    App a (Var (B ())) -> traverse fromVar a
+    _                  -> Nothing
   where
     fromVar (F (Var a)) = Just a
     fromVar _           = Nothing

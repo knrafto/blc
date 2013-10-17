@@ -44,7 +44,7 @@ properties = testGroup "properties"
     reduce e1 @=? reduce e2
   where
     assertParse s = case parseExpr s of
-        Left  _ -> assertFailure ("failed parse: " ++ s) >> return undefined
+        Left  _ -> assertFailure ("failed parse: " ++ s) >> undefined
         Right e -> return (translate e)
 
 unitTests :: TestTree
