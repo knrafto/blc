@@ -46,9 +46,11 @@ test-suite tests
     base,
     blc,
     bound,
+    HUnit            >= 1.2,
     QuickCheck       >= 2.4,
     tasty            >= 0.3,
-    tasty-quickcheck >= 0.3
+    tasty-quickcheck >= 0.3,
+    tasty-hunit      >= 0.2
 
   other-modules:
     Arbitrary
