@@ -5,6 +5,8 @@ module Language.BLC.Translate
       -- * Encoding
     , encodeBool
     , decodeBool
+    , encodeList
+    , decodeList
     )  where
 
 import           Bound
@@ -75,6 +77,15 @@ encodeList = foldr lcons lnil
   where
     lcons a b = app (construct "\\a b f. f a b") [a, b]
     lnil      = false
+
+-- | Decode a list.
+decodeList :: Eq a => Expr a -> [Expr a]
+decodeList = unfoldr f
+  where
+    f e = case reduce e of
+        Lam (Scope (App (App (Var (B ())) (Var (F a))) (Var (F b))))
+          -> Just (a, b)
+        _ -> Nothing
 
 -- | Encode a 'Char' as a list of Church booleans.
 encodeChar :: Char -> Expr a

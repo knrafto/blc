@@ -27,6 +27,8 @@ reducible e = reduce e /= e
 (~=) :: Expr V -> Expr V -> Bool
 (~=) = on (==) reduce
 
+(~==) :: [Expr V] -> [Expr V] -> Bool
+(~==) = on (==) (map reduce)
 
 (@~=) :: String -> String -> Assertion
 (@~=) s1 s2 = do
@@ -52,6 +54,8 @@ properties = testGroup "properties"
     , testGroup "encoding"
         [ testProperty "boolean" $
           \b -> decodeBool (encodeBool b :: Expr V) == Just b
+        , testProperty "list" $
+          \es -> guardFinite $ decodeList (encodeList es) ~== es
         ]
     ]
 
