@@ -13,6 +13,7 @@ import Test.Tasty.QuickCheck
 import Test.Tasty.HUnit       hiding (Testable)
 
 import Language.BLC.Core
+import Language.BLC.Encoding
 import Language.BLC.Parse     (parseExpr)
 import Language.BLC.Translate
 
@@ -53,14 +54,14 @@ properties = testGroup "properties"
             guardFinite $ lam v (App e (Var v)) ~= e
         ]
     , testGroup "encoding"
-        [ testProperty "boolean" $
+        [ testProperty "booleans" $
           \b -> decodeBool (encodeBool b :: Expr V) == Just b
-        , testProperty "list" $
+        , testProperty "lists" $
           \es -> guardFinite $ decodeList (encodeList es) ~== es
-        , testProperty "char" $
+        , testProperty "chars" $
           \c -> isLatin1 c ==>
             decodeChar (encodeChar c :: Expr V) == Just c
-        , testProperty "string" $
+        , testProperty "strings" $
           \s -> all isLatin1 s ==>
             decodeString (encodeString s :: Expr V) == s
         ]

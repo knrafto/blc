@@ -30,6 +30,7 @@ library
 
   exposed-modules:
     Language.BLC.Core
+    Language.BLC.Encoding
     Language.BLC.Parse
     Language.BLC.Translate
 

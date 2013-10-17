@@ -4,6 +4,8 @@ module Language.BLC.Parse
       Name
     , Decl(..)
     , Expr(..)
+    , ModuleName(..)
+    , Module(..)
       -- * Parsing
     , parseExpr
     ) where
@@ -22,7 +24,7 @@ type Name = String
 -- | A declaration or import statement.
 data Decl
     = Decl Name Expr
-    | Import [String]
+    | Import ModuleName
     deriving (Eq, Ord, Show, Read)
 
 -- | An expression.
@@ -33,6 +35,15 @@ data Expr
     | Let [Decl] Expr
     | CharLit Char
     | StrLit String
+    deriving (Eq, Ord, Show, Read)
+
+-- | A module name. @Data.Category.File@ is represented as
+-- @["Data", "Category", "File"]@.
+newtype ModuleName = ModuleName [String]
+    deriving (Eq, Ord, Show, Read)
+
+-- | A module, as a simple list of declarations.
+data Module = Module ModuleName [Decl]
     deriving (Eq, Ord, Show, Read)
 
 -- | Parse a value from a file name and string, consuming all input.
@@ -91,6 +102,6 @@ decl = import_ <|> Decl <$> name <* reserved "=" <*> expr
 import_ :: Parser Decl
 import_ = Import <$ reserved "import" <*> lexeme path
   where
-    path        = sepBy1 pathSegment (char '.')
+    path        = ModuleName <$> sepBy1 pathSegment (char '.')
     pathSegment = many1 pathChar
     pathChar    = satisfy $ \c -> not $ isSpace c || c `elem` "/."
