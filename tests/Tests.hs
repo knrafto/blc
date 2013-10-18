@@ -2,20 +2,20 @@ module Main
     ( main
     ) where
 
-import Prelude                hiding (notElem)
+import Prelude               hiding (notElem)
 
 import Data.Char
-import Data.Foldable          (notElem)
+import Data.Foldable         (notElem)
 import Data.Function
 import Test.QuickCheck
 import Test.Tasty
 import Test.Tasty.QuickCheck
-import Test.Tasty.HUnit       hiding (Testable)
+import Test.Tasty.HUnit      hiding (Testable)
 
+import Language.BLC.Compile
 import Language.BLC.Core
 import Language.BLC.Encoding
-import Language.BLC.Parse     (parseExpr)
-import Language.BLC.Translate
+import Language.BLC.Parse    (parseExpr)
 
 import Arbitrary
 import Infinite
@@ -40,7 +40,7 @@ reducible e = reduce e /= e
   where
     assertParse s = case parseExpr s of
         Left  _ -> assertFailure ("failed parse: " ++ s) >> undefined
-        Right e -> return (translate e)
+        Right e -> return (compile e)
 
 parseFail :: String -> Assertion
 parseFail s = case parseExpr s of

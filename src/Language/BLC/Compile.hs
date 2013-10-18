@@ -1,18 +1,18 @@
 -- | Translating lambda expressions.
-module Language.BLC.Translate
-    ( translate
-    , translateMain
+module Language.BLC.Compile
+    ( compile
+    , compileMain
     ) where
 
 import           Language.BLC.Core
 import           Language.BLC.Encoding
 import qualified Language.BLC.Parse    as P
 
--- | Translate a syntax tree into an expression. Chars are encoded as
+-- | Compile a syntax tree into an expression. Chars are encoded as
 -- 8-element lists of Church booleans, and strings are encoded as lists of
 -- encoded chars.
-translate :: P.Expr -> Expr String
-translate = go
+compile :: P.Expr -> Expr String
+compile = go
   where
     go (P.Var a)     = Var a
     go (P.App f as)  = app (go f) (map go as)
@@ -25,5 +25,5 @@ translate = go
 
 -- | Compile the main module, wrapping top-level declarations in
 -- @let <decls> in main;@.
-translateMain :: [P.Decl] -> Expr String
-translateMain decls = translate $ P.Let decls (P.Var "main")
+compileMain :: [P.Decl] -> Expr String
+compileMain decls = compile $ P.Let decls (P.Var "main")

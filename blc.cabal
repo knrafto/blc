@@ -30,10 +30,10 @@ library
     transformers    >= 0.2   && < 0.4
 
   exposed-modules:
+    Language.BLC.Compile
     Language.BLC.Core
     Language.BLC.Encoding
     Language.BLC.Parse
-    Language.BLC.Translate
 
   hs-source-dirs: src
   ghc-options: -Wall
