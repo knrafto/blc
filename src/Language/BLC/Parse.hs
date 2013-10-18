@@ -43,8 +43,10 @@ newtype ModuleName = ModuleName [String]
     deriving (Eq, Ord, Show, Read)
 
 -- | A module, as a simple list of declarations.
-data Module = Module ModuleName [Decl]
-    deriving (Eq, Ord, Show, Read)
+data Module = Module
+    { moduleName  :: ModuleName
+    , moduleDecls :: [Decl]
+    } deriving (Eq, Ord, Show, Read)
 
 -- | Parse a value from a file name and string, consuming all input.
 parseAll :: Parser a -> String -> String -> Either ParseError a
