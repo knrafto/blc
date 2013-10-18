@@ -38,12 +38,12 @@ reducible e = reduce e /= e
     e2 <- assertParse s2
     reduce e1 @=? reduce e2
   where
-    assertParse s = case parseExpr s of
+    assertParse s = case parseExpr "" s of
         Left  _ -> assertFailure ("failed parse: " ++ s) >> undefined
         Right e -> return (compile e)
 
 parseFail :: String -> Assertion
-parseFail s = case parseExpr s of
+parseFail s = case parseExpr "" s of
         Left  _ -> return ()
         Right _ -> assertFailure ("parse did not fail: " ++ s)
 

@@ -38,19 +38,19 @@ parseAll :: Parser a -> String -> String -> Either ParseError a
 parseAll p = parse (P.whiteSpace lexer *> p <* eof)
 
 -- | Parse an expression.
-parseExpr :: String -> Either ParseError Expr
-parseExpr = parseAll expr ""
+parseExpr :: SourceName -> String -> Either ParseError Expr
+parseExpr = parseAll expr
 
 lexer :: P.GenTokenParser String () Identity
 lexer = P.makeTokenParser emptyDef
     { P.commentLine   = "#"
-    , P.identStart    = nameStart
-    , P.identLetter   = nameLetter
+    , P.identStart    = satisfy isNameStart
+    , P.identLetter   = satisfy isNameLetter
     , P.reservedNames = ["import", "let", "in", "="]
     }
   where
-    nameStart  = satisfy $ \c -> not $ isSpace c || c `elem` "\\.#();'\""
-    nameLetter = satisfy $ \c -> not $ isSpace c || c `elem` "\\.#();"
+    isNameStart  c = isNameLetter c && c `notElem` "'\""
+    isNameLetter c = not (isSpace c) && c `notElem` "\\.#();"
 
 symbol :: String -> Parser String
 symbol = P.symbol lexer
