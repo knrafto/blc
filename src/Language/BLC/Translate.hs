@@ -22,3 +22,8 @@ translate = go
     go (P.Let ds b)  = foldr bind (go b) ds
 
     bind (P.Decl n s) e = App (lam n e) (go s)
+
+-- | Compile the main module, wrapping top-level declarations in
+-- @let <decls> in main;@.
+translateMain :: [P.Decl] -> Expr String
+translateMain decls = translate $ P.Let decls (P.Var "main")
