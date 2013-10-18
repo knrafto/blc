@@ -46,22 +46,9 @@ Names may be redefined at any time. A name appearing in an expression refers
 to the the latest definition that appears before the expression
 (see "Execution").
 
-## Imports
-
-And import statement of the form
-
-    import path.to.file;
-
-will inline the file path/to/file.lc, similar to the C preprocessor.
-Thus, order of imports can matter in some instances.
-
-The standard prelude (Prelude.lc) is automatically imported before every
-file.
-
 ## Execution
 
-After all imports are inlined into a single list of declarations, the main
-expression is equivalent to
+The main expression is equivalent to
 
     let <decls> in main
 

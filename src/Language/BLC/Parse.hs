@@ -4,8 +4,6 @@ module Language.BLC.Parse
       Name
     , Decl(..)
     , Expr(..)
-    , ModuleName(..)
-    , Module(..)
       -- * Parsing
     , parseExpr
     ) where
@@ -22,9 +20,7 @@ import qualified Text.Parsec.Token      as P
 type Name = String
 
 -- | A declaration or import statement.
-data Decl
-    = Decl Name Expr
-    | Import ModuleName
+data Decl = Decl Name Expr
     deriving (Eq, Ord, Show, Read)
 
 -- | An expression.
@@ -36,17 +32,6 @@ data Expr
     | CharLit Char
     | StrLit String
     deriving (Eq, Ord, Show, Read)
-
--- | A module name. @Data.Category.File@ is represented as
--- @["Data", "Category", "File"]@.
-newtype ModuleName = ModuleName [String]
-    deriving (Eq, Ord, Show, Read)
-
--- | A module, as a simple list of declarations.
-data Module = Module
-    { moduleName  :: ModuleName
-    , moduleDecls :: [Decl]
-    } deriving (Eq, Ord, Show, Read)
 
 -- | Parse a value from a file name and string, consuming all input.
 parseAll :: Parser a -> String -> String -> Either ParseError a
@@ -66,9 +51,6 @@ lexer = P.makeTokenParser emptyDef
   where
     nameStart  = satisfy $ \c -> not $ isSpace c || c `elem` "\\.#();'\""
     nameLetter = satisfy $ \c -> not $ isSpace c || c `elem` "\\.#();"
-
-lexeme :: Parser a -> Parser a
-lexeme = P.lexeme lexer
 
 symbol :: String -> Parser String
 symbol = P.symbol lexer
@@ -100,11 +82,4 @@ decls :: Parser [Decl]
 decls = sepEndBy1 decl (P.semi lexer)
 
 decl :: Parser Decl
-decl = import_ <|> Decl <$> name <* reserved "=" <*> expr
-
-import_ :: Parser Decl
-import_ = Import <$ reserved "import" <*> lexeme path
-  where
-    path        = ModuleName <$> sepBy1 pathSegment (char '.')
-    pathSegment = many1 pathChar
-    pathChar    = satisfy $ \c -> not $ isSpace c || c `elem` "/."
+decl = Decl <$> name <* reserved "=" <*> expr
