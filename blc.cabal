@@ -38,6 +38,15 @@ library
   hs-source-dirs: src
   ghc-options: -Wall
 
+executable blc
+  build-depends:
+    base >= 4.6 && < 5,
+    blc
+
+  hs-source-dirs: .
+  main-is: blc.hs
+  ghc-options: -Wall -O2
+
 test-suite tests
   type: exitcode-stdio-1.0
   main-is: Tests.hs
