@@ -6,6 +6,7 @@ module Language.BLC.Parse
     , Expr(..)
       -- * Parsing
     , parseExpr
+    , parseDecls
     ) where
 
 import           Control.Applicative    hiding (optional)
@@ -40,6 +41,10 @@ parseAll p = parse (P.whiteSpace lexer *> p <* eof)
 -- | Parse an expression.
 parseExpr :: SourceName -> String -> Either ParseError Expr
 parseExpr = parseAll expr
+
+-- | Parse a list of declarations (e.g. a file).
+parseDecls :: SourceName -> String -> Either ParseError [Decl]
+parseDecls = parseAll decls
 
 lexer :: P.GenTokenParser String () Identity
 lexer = P.makeTokenParser emptyDef
